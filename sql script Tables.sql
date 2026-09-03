@@ -1,0 +1,72 @@
+-- Step 1: Create and use the RaceDay Database
+CREATE DATABASE RaceDayDB;
+GO
+
+
+
+-- 2. Create USER Table
+CREATE TABLE [USER] (
+    UserID INT IDENTITY(1,1) PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(150) NOT NULL UNIQUE,
+    Password VARCHAR(255) NOT NULL,
+    Role VARCHAR(50) NOT NULL
+);
+GO
+
+-- 3. Create EVENT Table
+CREATE TABLE EVENT (
+    EventID INT IDENTITY(1,1) PRIMARY KEY,
+    OrganiserID INT NOT NULL,
+    Name VARCHAR(100) NOT NULL,
+    Description VARCHAR(MAX) NULL,
+    EventDate DATETIME NOT NULL,
+    Location VARCHAR(150) NOT NULL,
+    Distance DECIMAL(5,2) NOT NULL,
+    EventType VARCHAR(50) NOT NULL,
+    CONSTRAINT FK_Event_User FOREIGN KEY (OrganiserID) REFERENCES [USER](UserID) ON DELETE CASCADE
+);
+GO
+
+-- 4. Create CATEGORY Table
+CREATE TABLE CATEGORY (
+    CategoryID INT IDENTITY(1,1) PRIMARY KEY,
+    EventID INT NOT NULL,
+    CategoryName VARCHAR(100) NOT NULL,
+    CategoryType VARCHAR(50) NOT NULL,
+    Description VARCHAR(MAX) NULL,
+    CONSTRAINT FK_Category_Event FOREIGN KEY (EventID) REFERENCES EVENT(EventID) ON DELETE CASCADE
+);
+GO
+
+-- 5. Create ROUTE Table
+CREATE TABLE ROUTE (
+    RouteID INT IDENTITY(1,1) PRIMARY KEY,
+    EventID INT NOT NULL,
+    RouteName VARCHAR(100) NOT NULL,
+    Distance DECIMAL(5,2) NOT NULL,
+    Description VARCHAR(MAX) NULL,
+    CONSTRAINT FK_Route_Event FOREIGN KEY (EventID) REFERENCES EVENT(EventID) ON DELETE CASCADE
+);
+GO
+
+-- 6. Create ENROLMENT Table
+CREATE TABLE ENROLMENT (
+    EnrolmentID INT IDENTITY(1,1) PRIMARY KEY,
+    ParticipantID INT NOT NULL,
+    CategoryID INT NOT NULL,
+    EnrolmentDate DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Enrolment_Participant FOREIGN KEY (ParticipantID) REFERENCES [USER](UserID),
+    CONSTRAINT FK_Enrolment_Category FOREIGN KEY (CategoryID) REFERENCES CATEGORY(CategoryID)
+);
+GO
+
+-- 7. Create RESULT Table
+CREATE TABLE RESULT (
+    ResultID INT IDENTITY(1,1) PRIMARY KEY,
+    EnrolmentID INT NOT NULL UNIQUE,
+    FinishTime TIME NOT NULL,
+    FinishingPosition INT NOT NULL,
+    CONSTRAINT FK_Result_Enrolment FOREIGN KEY (EnrolmentID) REFERENCES ENROLMENT(EnrolmentID) ON DELETE CASCADE
+);
+GO
